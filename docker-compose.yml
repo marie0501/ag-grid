@@ -1,0 +1,23 @@
+
+services:
+  backend:
+    build:
+      context: ./fastapi-app   # Path to the FastAPI Dockerfile
+    container_name: fastapi-backend
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./react-app  # Path to the React Dockerfile
+    container_name: react-frontend
+    ports:
+      - "3000:80"  # Map the container port 80 to the local port 3000
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
