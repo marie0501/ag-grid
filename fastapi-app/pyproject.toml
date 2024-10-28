@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "fastapi-app"
+version = "0.1.0"
+description = ""
+authors = ["Marié del Valle Reyes <97261080+marie0501@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.4"
+uvicorn = "^0.32.0"
+pandas = "^2.2.3"
+openpyxl = "^3.1.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
