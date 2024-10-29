@@ -11,12 +11,13 @@ const TableGrid = () => {
 
   useEffect(() => {
     // Fetch data and columns dynamically from backend
-    axios.get("http://backend:8000/table-data")
+    axios.get("http://localhost:8000/table-data")
       .then((response) => {
-        if (response.data.error) {
-          console.error(response.data.error);
-          return;
-        }
+        console.log("Data from backend:", response.data); // Verifica los datos recibidos en la consola
+      if (response.data.error) {
+        console.error(response.data.error);
+        return;
+      }
         const enhancedColumnDefs = response.data.columns.map((col, index) => {
             if (col.field === "Profit") {
               return {
