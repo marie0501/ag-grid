@@ -1,35 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
+from strawberry.fastapi import GraphQLRouter
+from src.schema import schema
+
 
 app = FastAPI()
 
-# Allow CORS for the frontend (adjust for your frontend URL if needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with your frontend URL if different
+    allow_origins=["http://localhost:3000"],  
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  
+    allow_headers=["*"],  
 )
 
-@app.get("/table-data")
-async def get_table_data() -> dict:
-    
-    file_path = "data/EWTL.xlsx"
-    
-    # Load the file using pandas
-    try:
-        df = pd.read_excel(file_path)
-    except FileNotFoundError:
-        print(f"File not found: {file_path}")
-        return {"error": "file not found"}
+graphql_app = GraphQLRouter(schema)
 
-    # Extract column information dynamically
-    columns = [{"headerName": col, "field": col} for col in df.columns]
-
-    # Convert rows to a list of dictionaries
-    rows = df.to_dict(orient="records")
-
-    return {"columns": columns, "rows": rows}
-
+app.include_router(graphql_app, prefix="/graphql")

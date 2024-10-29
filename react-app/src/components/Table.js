@@ -1,52 +1,55 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useQuery, gql } from "@apollo/client";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
-import axios from "axios";
 import './Table.css';
 
-const TableGrid = () => {
-  const [rowData, setRowData] = useState([]);
-  const [columnDefs, setColumnDefs] = useState([]);
-
-  useEffect(() => {
-    // Fetch data and columns dynamically from backend
-    axios.get("http://localhost:8000/table-data")
-      .then((response) => {
-        console.log("Data from backend:", response.data); // Verifica los datos recibidos en la consola
-      if (response.data.error) {
-        console.error(response.data.error);
-        return;
+const GET_TABLE_DATA = gql`
+  query GetTableData {
+    getTableData {
+      columns {
+        headerName
+        field
       }
-        const enhancedColumnDefs = response.data.columns.map((col, index) => {
-            if (col.field === "Profit") {
-              return {
-                ...col,
-                editable: true,
-                filter: true,
-                cellClassRules: {
-                  "rating-red": (params) => params.value < 0,
-                  "rating-yellow": (params) => params.value >= 0 && params.value < 100,
-                  "rating-green": (params) => params.value >= 100,
-                },
-              };
-            }
-            return {
-              ...col,
-              editable: true,
-              filter: true,
-              floatingFilter: true,
-              checkboxSelection: index === 0,
-              headerCheckboxSelection: index === 0,
-            };
-          });
-          setColumnDefs(enhancedColumnDefs);
-          setRowData(response.data.rows);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
-  }, []);
+      rows
+    }
+  }
+`;
+
+const TableGrid = () => {
+  // Use Apollo's useQuery hook to fetch the data from GraphQL
+  const { loading, error, data } = useQuery(GET_TABLE_DATA);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  // Map the columns and set their definitions
+  const columnDefs = data.getTableData.columns.map((col, index) => {
+    if (col.field === "Profit") {
+      return {
+        ...col,
+        editable: true,
+        filter: true,
+        cellClassRules: {
+          "rating-red": (params) => params.value < 0,
+          "rating-yellow": (params) => params.value >= 0 && params.value < 100,
+          "rating-green": (params) => params.value >= 100,
+        },
+      };
+    }
+    return {
+      ...col,
+      editable: true,
+      filter: true,
+      floatingFilter: true,
+      checkboxSelection: index === 0,
+      headerCheckboxSelection: index === 0,
+    };
+  });
+
+  // Extract rows directly from the data
+  const rowData = data.getTableData.rows;
 
   return (
     <div className="ag-theme-quartz" style={{ height: 600, width: "100%" }}>
@@ -54,8 +57,6 @@ const TableGrid = () => {
         rowData={rowData}
         columnDefs={columnDefs}
         rowSelection={'multiple'}
-        // pagination={true}
-        // paginationPageSize={10}
       />
     </div>
   );

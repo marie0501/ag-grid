@@ -11,6 +11,7 @@ fastapi = "^0.115.4"
 uvicorn = "^0.32.0"
 pandas = "^2.2.3"
 openpyxl = "^3.1.5"
+strawberry-graphql = "^0.247.0"
 
 
 [build-system]
